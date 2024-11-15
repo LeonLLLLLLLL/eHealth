@@ -1,0 +1,22 @@
+project/
+│
+├── app.py
+├── config.py
+├── requirements.txt
+├── database.sqlite
+├── models/
+│   ├── __init__.py
+│   └── user_model.py
+├── static/
+│   ├── css/
+│   │   └── main.css
+│   ├── js/
+│   │   └── main.js
+├── templates/
+│   ├── base.html
+│   ├── login.html
+│   └── register.html
+├── sites/
+│   ├── __init__.py
+│   ├── login_site.py
+│   └── other_site.py
