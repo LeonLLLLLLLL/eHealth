@@ -4,14 +4,30 @@
 
 {% block content %}
 <div class="admin-container">
-    <h1>Admin Panel</h1>
-    <form action="/admin_panel/add_user" method="POST">
+    <h1>Welcome, {{ admin_name }}</h1>
+
+    <!-- Logout Button -->
+    <form action="/admin_panel/logout" method="POST" style="margin-top: 20px;">
+        <button type="submit">Logout</button>
+    </form>
+
+    <!-- Add User Form -->
+    <form action="/admin_panel/add_user" method="POST" style="margin-top: 20px;">
+        <h3>Add a New User</h3>
         <input type="text" name="username" placeholder="Username" required>
         <input type="email" name="email" placeholder="Email" required>
         <input type="password" name="password" placeholder="Password" required>
         <label for="roles">Roles (comma-separated):</label>
         <input type="text" name="roles" placeholder="e.g., user,admin">
         <button type="submit">Add User</button>
+    </form>
+
+    <!-- Add Case Form -->
+    <form action="/admin_panel/add_case" method="POST" style="margin-top: 20px;">
+        <h3>Create a New Case</h3>
+        <input type="text" name="caseName" placeholder="Case Name" required>
+        <textarea name="description" placeholder="Description" rows="4" required></textarea>
+        <button type="submit">Create Case</button>
     </form>
 </div>
 {% endblock %}
