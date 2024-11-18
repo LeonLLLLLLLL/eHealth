@@ -1,0 +1,19 @@
+project/
+│
+├── app.py
+├── config.py
+├── requirements.txt
+├── static/
+│   ├── css/
+│   │   └── main.css
+│   ├── js/
+│   │   └── main.js
+│   └── images/
+├── templates/
+│   ├── base.html
+│   └── login.html
+├── sites/
+│   ├── __init__.py
+│   ├── login_site.py
+│   └── other_site.py
+
