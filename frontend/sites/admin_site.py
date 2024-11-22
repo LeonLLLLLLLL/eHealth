@@ -19,6 +19,11 @@ def admin_panel():
         decoded_token = jwt.decode(
             session['access_token'], SECRET_KEY, algorithms=[ALGORITHM]
         )
+        user_roles = decoded_token.get("roles", ["user"])
+        user_role = user_roles[0]
+        if(user_role != "admin"):
+            session.pop('access_token', None)
+            return redirect(url_for('login_site.login_page'))
         username = decoded_token.get("sub")
     except JWTError:
         return redirect(url_for('login_site.login_page'))  # Redirect on token decode failure
