@@ -23,7 +23,7 @@ logging_config = {
     },
     "root": {
         "handlers": ["console", "file"],
-        "level": "INFO",
+        "level": "DEBUG",  # Changed from INFO to DEBUG
     },
     "loggers": {
         "watchfiles.main": {  # Suppress watchfiles logs

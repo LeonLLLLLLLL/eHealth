@@ -27,7 +27,7 @@ def load_onnx_model(onnx_path):
         logger.error(f"Failed to load ONNX model from {onnx_path}: {str(e)}")
         return None
 
-def onnx_prediction(input_image_path, session):
+def onnx_prediction(image, session):
     """
     Predicts using the ONNX model and returns scaled bounding boxes with confidence scores grouped by class.
 
@@ -36,11 +36,11 @@ def onnx_prediction(input_image_path, session):
     @return: A dictionary where keys are class IDs and values are lists of tuples (bounding box, confidence score).
     """
     try:
-        logger.info(f"Predicting Image: {input_image_path}")
+        #logger.info(f"Predicting Image: {input_image_path}")
         class_bboxes = {}
 
         # Load the original image
-        image = load_image(input_image_path)
+        #image = load_image(input_image_path)
         original_height, original_width = image.shape[:2]
 
         # Resize image to 640x640 for the model

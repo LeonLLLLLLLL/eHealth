@@ -1,12 +1,12 @@
-from onnx_interference import load_onnx_model, onnx_prediction, draw_bboxes
+from backend.scripts.onnx_interference import onnx_prediction, draw_bboxes
 import os
 import torch
-from sam2.build_sam import build_sam2
+#from sam2.build_sam import build_sam2
 import cv2
 from PIL import Image
 import numpy as np
 import supervision as sv
-from sam2.sam2_image_predictor import SAM2ImagePredictor
+#from sam2.sam2_image_predictor import SAM2ImagePredictor
 import matplotlib.pyplot as plt
 
 ########## TESTING REMOVE LATER ############
@@ -75,21 +75,20 @@ def get_highest_conf_bbox(results):
 
     return best_class, best_bbox, max_confidence
 
-def process_capsule(predictor, ort_session, image_path):
-    result = onnx_prediction(image_path, ort_session)
+def process_capsule(predictor, ort_session, image):
+    result = onnx_prediction(image, ort_session)
     best_class, best_bbox, max_confidence = get_highest_conf_bbox(result)
     best_bbox = np.array(best_bbox)
-    masks, scores, logits = segment_bbox(predictor, image_path, best_bbox)
+    masks, scores, logits = segment_bbox(predictor, image, best_bbox)
     highest_score_mask = max(zip(masks, scores), key=lambda x: x[1])[0]
     _1cm = calculate_pixels_per_cm(highest_score_mask, best_class)
     return _1cm
 
-def process_tissue(ort_session, image_path):
-    result = onnx_prediction(image_path, ort_session)
+def process_tissue(ort_session, image):
+    result = onnx_prediction(image, ort_session)
     return result
 
-def segment_bbox(predictor, image_path, bbox):
-    image = Image.open(image_path).convert("RGB")
+def segment_bbox(predictor, image, bbox):
     predictor.set_image(image)
     masks, scores, logits = predictor.predict(box=bbox, multimask_output=True)
     return masks, scores, logits
@@ -104,7 +103,16 @@ if __name__ == "__main__":
     predictor = SAM2ImagePredictor(sam2)
 
     _1cm = process_capsule(predictor, ort_session_capsule, image_path)
-    result = process_tissue(ort_session_tissue, image_path)
+    results = process_tissue(ort_session_tissue, image_path)
+    image_cv = cv2.imread(image_path)
+    index = 0
+    for cls, bboxes in results.items():
+        for bbox, confidence in bboxes:
+            # Convert bbox (np.float32) values to Python floats
+            bbox = tuple(map(float, bbox))
+            grid_segments = generate_grid_segments(bbox, _1cm, (1,1))
+            visualize_grid_segments_opencv(grid_segments, image_cv, f"tmp/out_{index}.jpg")
+            index += 1
 
 
     #########
