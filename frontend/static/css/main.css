@@ -73,6 +73,22 @@ main {
     background-color: #0056b3;
 }
 
+.diagnostic-container {
+    text-align: center;
+    margin-top: 50px;
+}
+
+.diagnostic-container input {
+    padding: 10px;
+    width: 300px;
+    margin-right: 10px;
+}
+
+.diagnostic-container button {
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
 .flash-messages {
     list-style: none;
     padding: 0;

@@ -25,8 +25,6 @@ import zlib
 ##########################
 # FOR TESTING REMOVE LATER!!
 from time import sleep
-import sys
-import zipfile
 ##########################
 
 logger.info("Starting backend application")
@@ -109,39 +107,24 @@ def decode_rle(rle, shape):
         flat[start:start + length] = 1
     return flat.reshape(shape)
 
-def encode_mask_with_metadata(mask, metadata):
-    """Encodes a binary mask along with metadata using RLE."""
-    rle = encode_rle(mask)  # Use existing RLE encoding function
-    metadata_with_rle = {
-        "rle": rle,
-        "metadata": metadata
-    }
-    return metadata_with_rle
-
-def decode_mask_with_metadata(metadata_with_rle, shape):
-    """Decodes an RLE mask along with its metadata."""
-    rle = metadata_with_rle["rle"]
-    metadata = metadata_with_rle["metadata"]
-    mask = decode_rle(rle, shape)  # Use existing RLE decoding function
-    return mask, metadata
-
-def compress_metadata_with_masks(metadata_with_rle_list):
-    """Compresses RLE masks along with metadata."""
-    # Serialize metadata and RLEs into a JSON string
-    serialized_data = json.dumps(metadata_with_rle_list)
-    # Compress using zlib and encode in base64
-    compressed = zlib.compress(serialized_data.encode())
+def compress_rle_encoded_masks(rle_encoded_masks):
+    """Compresses RLE-encoded masks using zlib."""
+    # Combine all RLEs into a single byte string
+    combined = "\n".join([",".join(map(str, rle)) for rle in rle_encoded_masks])
+    compressed = zlib.compress(combined.encode())
     return base64.b64encode(compressed).decode('utf-8')
 
-def decompress_metadata_with_masks(compressed_data):
-    """Decompresses RLE masks and metadata from a compressed format."""
+def decompress_rle_encoded_masks(compressed_data):
+    """Decompresses RLE-encoded masks from a compressed format."""
     # Decode the base64 encoded string
     compressed = base64.b64decode(compressed_data)
     # Decompress the zlib-compressed data
     decompressed = zlib.decompress(compressed).decode('utf-8')
-    # Deserialize the JSON string into a Python object
-    metadata_with_rle_list = json.loads(decompressed)
-    return metadata_with_rle_list
+    # Split the decompressed string into individual RLEs
+    rle_encoded_masks = [
+        list(map(int, rle.split(","))) for rle in decompressed.split("\n") if rle
+    ]
+    return rle_encoded_masks
 
 def create_access_token(data: dict, expires_delta: timedelta = None):
     logger.debug(f"Creating access token for data: {data}")
@@ -272,47 +255,45 @@ async def upload_image(
         results_tissue = process_tissue(ort_session_tissue, image_array)
 
         # Save analysis results
-        metadata_with_rle_list = []
-        test = []
+        analysis_results = []
+        rle_masks = []
         for cls, bboxes in results_tissue.items():
             for bbox, confidence in bboxes:
                 bbox = tuple(map(float, bbox))
                 grid_segments = generate_grid_segments(bbox, _1cm, (1, 1))
-                #save_grid_segments(grid_segments)
+                save_grid_segments(grid_segments)
 
                 # Segmentation results
-                tissue_masks, tissue_scores, _ = segment_bbox(predictor, image_array, bbox)
+                tissue_masks, tissue_scores, tissue_logits = segment_bbox(predictor, image_array, bbox)
                 highest_score_mask = max(zip(tissue_masks, tissue_scores), key=lambda x: x[1])[0]
                 logger.info(highest_score_mask)
 
-                # Metadata for the mask
-                metadata = {
+
+                rle_mask = encode_rle(highest_score_mask)
+                rle_masks.append(rle_mask)
+                #mask1 = decode_rle(mask, image_array.shape[:2])
+
+
+
+                # Append bounding box data
+                bbox_data = {
                     "class": cls,
                     "confidence": float(confidence),
                     "bbox": bbox,
                     "grid_segments": grid_segments
                 }
+                analysis_results.append(bbox_data)
 
-                # Encode mask with metadata
-                test.append((metadata, highest_score_mask))
-                metadata_with_rle = encode_mask_with_metadata(highest_score_mask, metadata)
-                metadata_with_rle_list.append(metadata_with_rle)
-
-        # Compress metadata with RLE masks
-        compressed_data = compress_metadata_with_masks(metadata_with_rle_list)
-
-        # Decompress to verify integrity
-        #decompressed_data = decompress_metadata_with_masks(compressed_data)
-        #for metadata_with_rle in decompressed_data:
-        #    mask, metadata = decode_mask_with_metadata(metadata_with_rle, image_array.shape[:2])
-
-            # Visualize or process the mask
-        #    plt.figure(figsize=(8, 8))
-        #    plt.imshow(mask, cmap='gray', interpolation='nearest')
-        #    plt.title(f"Class: {metadata['class']}, Confidence: {metadata['confidence']}")
-        #    plt.colorbar(label="Value")
-        #    plt.axis('off')
-        #    plt.show()
+            compressed_masks = compress_rle_encoded_masks(rle_masks)
+            decompressed_masks = decompress_rle_encoded_masks(compressed_masks)
+            for ele in decompressed_masks:
+                original_mask = decode_rle(ele, image_array.shape[:2])
+                plt.figure(figsize=(8, 8))
+                plt.imshow(original_mask, cmap='gray', interpolation='nearest')
+                plt.title("Binary Mask Visualization")
+                plt.colorbar(label="Value")
+                plt.axis('off')  # Optional: Turn off the axis for better visualization
+                plt.show()
 
     except Exception as e:
         logger.error(f"Error processing image: {e}")
@@ -329,7 +310,7 @@ async def upload_image(
         "data": file_content,
         "uploaded_at": datetime.utcnow(),
         "uploaded_by": current_user["username"],
-        "compressed_analysis_results": compressed_data  # Store compressed data here
+        "analysis_results": analysis_results  # Add analysis results here
     }
     image_result = images_collection.insert_one(image_document)
     image_id = str(image_result.inserted_id)

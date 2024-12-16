@@ -64,6 +64,8 @@ def login_process():
                 return redirect(url_for('admin_site.admin_panel'))
             elif user_role == "macro_pathologist":
                 return redirect("/macro_case_panel")
+            elif user_role == "diagnostic_pathologist":
+                return redirect("/diagnostic_case_panel")
             else:
                 return redirect("/")
         except JWTError:
