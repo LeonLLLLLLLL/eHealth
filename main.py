@@ -348,6 +348,66 @@ async def upload_image(
         "image_id": image_id
     }
 
+@app.get("/cases/{case_name}/images", response_model=list)
+async def get_case_images(case_name: str, current_user: dict = Depends(get_current_user)):
+    logger.info(f"Fetching images for case: {case_name}, requested by: {current_user['username']}")
+
+    allowed_roles = {"admin", "diagnostic_pathologist"}
+    user_roles = set(current_user["roles"])
+
+    if not allowed_roles.intersection(user_roles):
+        logger.warning(f"Access denied for user {current_user['username']} to fetch images")
+        raise HTTPException(
+            status_code=403, detail="Access denied: Only admins or diagnostic pathologists can access case images"
+        )
+
+    # Fetch the case by name
+    case = cases_collection.find_one({"caseName": case_name})
+    if not case:
+        logger.warning(f"Case '{case_name}' not found")
+        raise HTTPException(status_code=404, detail=f"Case '{case_name}' not found")
+
+    # Retrieve all images linked to the case
+    image_ids = case.get("imageIds", [])
+    if not image_ids:
+        return []
+
+    # Convert image IDs to ObjectId and fetch corresponding images
+    try:
+        object_ids = [ObjectId(image_id) for image_id in image_ids]
+        images = list(images_collection.find({"_id": {"$in": object_ids}}))
+    except Exception as e:
+        logger.error(f"Error fetching images: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error fetching images")
+
+    # Serialize images and encode binary data
+    serialized_images = []
+    for image in images:
+        serialized_image = {
+            "_id": str(image["_id"]),
+            "filename": image.get("filename", "unknown"),
+            "image_shape": image.get("image_shape", {}),
+            "compressed_analysis_results": image.get("compressed_analysis_results", "")
+        }
+
+        # Encode the binary 'data' field in Base64 if present
+        if "data" in image and isinstance(image["data"], bytes):
+            serialized_image["data"] = base64.b64encode(image["data"]).decode("utf-8")
+
+        serialized_images.append(serialized_image)
+
+    return serialized_images
+
+    #analysis_result = []
+    #for image in images:
+    #    compressed_data = image.get('compressed_analysis_results')
+    #    decompressed_data = decompress_metadata_with_masks(compressed_data)
+    #    for metadata_with_rle in decompressed_data:
+    #        mask, metadata = decode_mask_with_metadata(metadata_with_rle, image.get("image_shape"))
+    #        analysis_result.append(mask, metadata)
+    #        logger.info(metadata)
+
+
 @app.post("/logout")
 async def logout():
     logger.info("User logged out successfully")

@@ -1,11 +1,48 @@
 {% extends "base.html" %}
 
 {% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/diagnostic_case_panel.css') }}">
+
 <div class="diagnostic-container">
     <h2>Diagnostic Case Panel</h2>
-    <form method="POST" action="/diagnostic">
+
+    <!-- Form to Select Diagnostic Case -->
+    <form method="POST" action="/diagnostic_case_panel/get_case">
         <input type="text" name="case_input" placeholder="Enter diagnostic case..." required>
         <button type="submit">Submit</button>
     </form>
+
+    {% if case_name %}
+    <h3>Results for Case: {{ case_name }}</h3>
+
+    {% if case_data %}
+        <!-- Image List Section -->
+        <div class="image-preview-list" id="image-preview-list">
+            {% for image in case_data %}
+                <div class="image-preview-item" onclick="showFullImage('{{ image.data }}', '{{ image.filename }}')">
+                    <img src="data:image/png;base64,{{ image.data }}" alt="{{ image.filename }}" class="preview-icon">
+                    <div class="image-description">
+                        <h4>{{ image.filename }}</h4>
+                        <p>Image Shape: {{ image.image_shape }}</p>
+                        {% if image.decompressed_results %}
+                            <p>Analysis: {{ image.decompressed_results[0].metadata.class }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Full Image View Section -->
+        <div class="full-image-container" id="full-image-container" style="display: none;">
+            <button class="back-button" onclick="hideFullImage()">Back</button>
+            <img id="full-image" src="" alt="Full Image" class="full-image">
+            <p id="full-image-title"></p>
+        </div>
+    {% else %}
+        <p>No images found for this case.</p>
+    {% endif %}
+    {% endif %}
 </div>
+
+<script src="{{ url_for('static', filename='js/diagnostic_case_panel.js') }}"></script>
 {% endblock %}
