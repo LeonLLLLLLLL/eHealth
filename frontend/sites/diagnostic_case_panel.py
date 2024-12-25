@@ -55,17 +55,25 @@ def diagnostic_panel():
                 data = response.json()
                 for image in data:
                     decompressed_data = decompress_metadata_with_masks(image["compressed_analysis_results"])
-                    #for metadata_with_rle in decompressed_data:
-                        #mask, metadata = decode_mask_with_metadata(metadata_with_rle, image["image_shape"])
+                    grids = []  # Initialize a list to store grids for the current image
 
-                        # Visualize or process the mask
-                        #plt.figure(figsize=(8, 8))
-                        #plt.imshow(mask, cmap='gray', interpolation='nearest')
-                        #plt.title(f"Class: {metadata['class']}, Confidence: {metadata['confidence']}")
-                        #plt.colorbar(label="Value")
-                        #plt.axis('off')
-                        #plt.show()
+                    for metadata_with_rle in decompressed_data:
+                        mask, metadata = decode_mask_with_metadata(metadata_with_rle, image["image_shape"])
+                        grids.append(metadata["grid_segments"])  # Append the grid_segments to the list
+
+                        # Visualize or process the mask if needed
+                        # plt.figure(figsize=(8, 8))
+                        # plt.imshow(mask, cmap='gray', interpolation='nearest')
+                        # plt.title(f"Class: {metadata['class']}, Confidence: {metadata['confidence']}")
+                        # plt.colorbar(label="Value")
+                        # plt.axis('off')
+                        # plt.show()
+
+                    # Add the grids list to the image's dictionary for future use
+                    image["grids"] = grids
+
                 return render_template('diagnostic_case_panel.html', case_name=case_name, case_data=data)
+
             else:
                 flash(f"Error: {response.json().get('detail', 'Unable to fetch data')}", "error")
         except requests.exceptions.RequestException as e:

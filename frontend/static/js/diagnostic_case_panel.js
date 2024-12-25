@@ -1,48 +1,59 @@
-// Show the full image when an image is clicked
-function showFullImage(imageData, title) {
-    // Hide the preview list
-    document.getElementById('image-preview-list').style.display = 'none';
+document.addEventListener('DOMContentLoaded', () => {
+    const fullImageContainer = document.getElementById('full-image-container');
+    const fullImage = document.getElementById('full-image');
+});
+
+function showFullImage(imageData, imageFilename) {
+    const fullImageContainer = document.getElementById('full-image-container');
+    const fullImage = document.getElementById('full-image');
+    const fullImageTitle = document.getElementById('full-image-title');
+    const imagePreviewList = document.getElementById('image-preview-list'); // Get the item list
+
+    // Set the image source and title
+    fullImage.src = `data:image/png;base64,${imageData}`;
+    fullImageTitle.textContent = imageFilename;
 
     // Show the full image container
-    const fullImageContainer = document.getElementById('full-image-container');
-    fullImageContainer.style.display = 'block';
+    fullImageContainer.style.display = 'flex';
 
-    // Update the full image and title
-    const fullImage = document.getElementById('full-image');
-    fullImage.src = 'data:image/png;base64,' + imageData;
+    // Hide the item list
+    imagePreviewList.classList.add('hidden');
 
-    const fullImageTitle = document.getElementById('full-image-title');
-    fullImageTitle.textContent = title;
+    // Reset transformations for the new image
+    fullImage.style.transform = 'scale(1)';
+    fullImage.style.transformOrigin = 'center center';
 
-    // Reset zoom scale
-    scale = 1;
-    fullImage.style.transform = `scale(${scale})`;
 }
 
-// Hide the full image and return to the preview list
 function hideFullImage() {
-    // Hide the full image container
-    document.getElementById('full-image-container').style.display = 'none';
+    const fullImageContainer = document.getElementById('full-image-container');
+    const fullImage = document.getElementById('full-image');
+    const imagePreviewList = document.getElementById('image-preview-list'); // Get the item list
 
-    // Show the preview list
-    document.getElementById('image-preview-list').style.display = 'block';
+    // Hide the container and reset the image
+    fullImageContainer.style.display = 'none';
+    fullImage.src = '';
+
+    // Show the item list
+    imagePreviewList.classList.remove('hidden');
 }
 
-// Zoom functionality with scroll wheel
-let scale = 1;
-document.addEventListener('DOMContentLoaded', () => {
+function showGrid() {
     const fullImage = document.getElementById('full-image');
+    const canvas = document.getElementById('grid-canvas');
+    const fullImageTitle = document.getElementById('full-image-title').textContent;
 
-    fullImage.addEventListener('wheel', function (event) {
-        event.preventDefault();
+    // Get the hidden grids data
+    const gridsElement = document.getElementById(`'${fullImageTitle}'`);
+    if (!gridsElement) {
+        console.error('Grid data not found for the current image.');
+        return;
+    }
 
-        // Adjust scale based on scroll direction
-        scale += event.deltaY * -0.01;
+    const grids = JSON.parse(gridsElement.textContent);
+    //console.log(grids)
+    for(const grid of grids){
+        console.log(grid)
+    }
+}
 
-        // Limit the scale
-        scale = Math.min(Math.max(1, scale), 10);
-
-        // Apply the scale transform
-        fullImage.style.transform = `scale(${scale})`;
-    });
-});

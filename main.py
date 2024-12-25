@@ -278,7 +278,7 @@ async def upload_image(
             for bbox, confidence in bboxes:
                 bbox = tuple(map(float, bbox))
                 grid_segments = generate_grid_segments(bbox, _1cm, (1, 1))
-                #save_grid_segments(grid_segments)
+                save_grid_segments(grid_segments)
 
                 # Segmentation results
                 tissue_masks, tissue_scores, _ = segment_bbox(predictor, image_array, bbox)
@@ -302,9 +302,12 @@ async def upload_image(
         compressed_data = compress_metadata_with_masks(metadata_with_rle_list)
 
         # Decompress to verify integrity
-        #decompressed_data = decompress_metadata_with_masks(compressed_data)
-        #for metadata_with_rle in decompressed_data:
-        #    mask, metadata = decode_mask_with_metadata(metadata_with_rle, image_array.shape[:2])
+        decompressed_data = decompress_metadata_with_masks(compressed_data)
+        index = 0
+        for metadata_with_rle in decompressed_data:
+            mask, metadata = decode_mask_with_metadata(metadata_with_rle, image_array.shape[:2])
+            visualize_grid_segments_opencv(metadata["grid_segments"], image_array, f"{index}.jpg")
+            index += 1
 
             # Visualize or process the mask
         #    plt.figure(figsize=(8, 8))

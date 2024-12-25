@@ -14,13 +14,14 @@
 
     {% if case_name %}
     <h3>Results for Case: {{ case_name }}</h3>
-
     {% if case_data %}
         <!-- Image List Section -->
         <div class="image-preview-list" id="image-preview-list">
             {% for image in case_data %}
-                <div class="image-preview-item" onclick="showFullImage('{{ image.data }}', '{{ image.filename }}')">
+                <div class="image-preview-item"
+                     onclick="showFullImage('{{ image.data }}', '{{ image.filename }}')">
                     <img src="data:image/png;base64,{{ image.data }}" alt="{{ image.filename }}" class="preview-icon">
+                    <p class="hidden" id="'{{ image.filename }}'">{{ image.grids | tojson }}</p>
                     <div class="image-description">
                         <h4>{{ image.filename }}</h4>
                         <p>Image Shape: {{ image.image_shape }}</p>
@@ -35,7 +36,14 @@
         <!-- Full Image View Section -->
         <div class="full-image-container" id="full-image-container" style="display: none;">
             <button class="back-button" onclick="hideFullImage()">Back</button>
+            <button class="grid-button" onclick="showGrid()">Show Grid</button>
             <img id="full-image" src="" alt="Full Image" class="full-image">
+            <div class="full-image-container" id="full-image-container" style="display: none;">
+                <button class="back-button" onclick="hideFullImage()">Back</button>
+                <button class="grid-button" onclick="showGrid()">Show Grid</button>
+                <img id="full-image" src="" alt="Full Image" class="full-image">
+                <p id="full-image-title"></p>
+            </div>
             <p id="full-image-title"></p>
         </div>
     {% else %}
