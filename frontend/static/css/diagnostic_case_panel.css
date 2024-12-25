@@ -67,6 +67,7 @@
     object-fit: contain;
     transform-origin: center center;
     transition: transform 0.3s ease; /* Smooth zoom transition */
+    z-index: 5; /* Ensure it's below the grid overlay */
 }
 
 .full-image-container p {
@@ -74,37 +75,33 @@
     margin-top: 10px;
 }
 
-.back-button {
+/* General Button Styles */
+.button {
     position: absolute;
+    background-color: #0056b3;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 10;
+    transition: background-color 0.2s ease;
+}
+
+/* Specific Button Positions */
+#back-button {
     top: 20px;
     left: 20px;
-    background-color: #0056b3;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    font-size: 1rem;
-    border-radius: 5px;
-    cursor: pointer;
-    z-index: 10;
-    transition: background-color 0.2s ease;
 }
 
-.grid-button {
-    position: absolute;
+#grid-button {
     top: 50px;
     left: 20px;
-    background-color: #0056b3;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    font-size: 1rem;
-    border-radius: 5px;
-    cursor: pointer;
-    z-index: 10;
-    transition: background-color 0.2s ease;
 }
 
-.back-button:hover {
+/* Hover States */
+.button:hover {
     background-color: #003e7a;
 }
 
@@ -113,10 +110,10 @@
     display: none !important;
 }
 
-.grid-canvas {
+/* SVG Overlay for Grid Lines */
+#grid-overlay {
     position: absolute;
-    top: 0;
-    left: 0;
-    pointer-events: none; /* Prevent interaction with the canvas */
-    z-index: 10; /* Ensure it's above the image */
+    z-index: 9;
+    /*background-color: rgba(255, 0, 0, 0.1); /* Light red for debugging */
+    /*border: 1px solid red; /* Adds a visible border */
 }

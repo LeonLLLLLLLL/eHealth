@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG Debug Display</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden; /* Ensure no scrollbars */
+        }
+        svg {
+            border: 1px solid black; /* Optional: To visually debug the SVG boundary */
+        }
+    </style>
+</head>
+<body>
+    <svg id="grid-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"
+         viewBox="0 0 4000 3000">
+        <line x1="3114.433349609375" y1="2458.971435546875" x2="3216.683349609375" y2="2458.971435546875"
+              stroke="blue" stroke-width="20"></line>
+    </svg>
+</body>
+</html>

@@ -34,18 +34,14 @@
         </div>
 
         <!-- Full Image View Section -->
-        <div class="full-image-container" id="full-image-container" style="display: none;">
-            <button class="back-button" onclick="hideFullImage()">Back</button>
-            <button class="grid-button" onclick="showGrid()">Show Grid</button>
+        <div class="full-image-container" id="full-image-container" style="position: relative; display: none;">
+            <button class="button" id="back-button" onclick="hideFullImage()">Back</button>
+            <button class="button" id="grid-button" onclick="showGrid()">Show Grid</button>
             <img id="full-image" src="" alt="Full Image" class="full-image">
-            <div class="full-image-container" id="full-image-container" style="display: none;">
-                <button class="back-button" onclick="hideFullImage()">Back</button>
-                <button class="grid-button" onclick="showGrid()">Show Grid</button>
-                <img id="full-image" src="" alt="Full Image" class="full-image">
-                <p id="full-image-title"></p>
-            </div>
-            <p id="full-image-title"></p>
+            <svg id="grid-overlay" viewBox="0 0 4000 3000"></svg>
+            <p id="full-image-title" class="hidden"></p>
         </div>
+
     {% else %}
         <p>No images found for this case.</p>
     {% endif %}
