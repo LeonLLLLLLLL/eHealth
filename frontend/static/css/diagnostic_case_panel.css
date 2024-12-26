@@ -100,6 +100,11 @@
     left: 20px;
 }
 
+#box-button{
+    top: 80px;
+    left: 20px;
+}
+
 /* Hover States */
 .button:hover {
     background-color: #003e7a;
@@ -112,6 +117,14 @@
 
 /* SVG Overlay for Grid Lines */
 #grid-overlay {
+    position: absolute;
+    z-index: 9;
+    /*background-color: rgba(255, 0, 0, 0.1); /* Light red for debugging */
+    /*border: 1px solid red; /* Adds a visible border */
+}
+
+/* SVG Overlay for Grid Lines */
+#box-overlay {
     position: absolute;
     z-index: 9;
     /*background-color: rgba(255, 0, 0, 0.1); /* Light red for debugging */
