@@ -22,6 +22,7 @@
                      onclick="showFullImage('{{ image.data }}', '{{ image.filename }}')">
                     <img src="data:image/png;base64,{{ image.data }}" alt="{{ image.filename }}" class="preview-icon">
                     <p class="hidden" id="'{{ image.filename }}'">{{ image.grids | tojson }}</p>
+                    <p class="hidden" id="'{{ image.filename }}'_masks">{{ image.masks }}</p>
                     <div class="image-description">
                         <h4>{{ image.filename }}</h4>
                         <p>Image Shape: {{ image.image_shape }}</p>
@@ -35,14 +36,20 @@
 
         <!-- Full Image View Section -->
         <div class="full-image-container" id="full-image-container" style="position: relative; display: none;">
-            <button class="button" id="back-button" onclick="hideFullImage()">Back</button>
-            <button class="button" id="grid-button" onclick="showGrid()">Show Grid</button>
-            <button class="button" id="box-button" onclick="showBoxes()">Show Tissue Boxes</button>
+            <div class="draggable-buttons" id="draggable-buttons">
+                <button class="button" id="back-button" onclick="hideFullImage()">Back</button>
+                <button class="button" id="grid-button" onclick="showGrid()">Show Grid</button>
+                <button class="button" id="box-button" onclick="showBoxes()">Show Tissue Boxes</button>
+                <button class="button" id="mask-button" onclick="showMasks()">Show Tissue Segements</button>
+            </div>
             <img id="full-image" src="" alt="Full Image" class="full-image">
             <svg id="grid-overlay" viewBox="0 0 4000 3000"></svg>
             <svg id="box-overlay" viewBox="0 0 4000 3000"></svg>
+            <svg id="mask-overlay" viewBox="0 0 4000 3000"></svg>
             <p id="full-image-title" class="hidden"></p>
         </div>
+
+
 
     {% else %}
         <p>No images found for this case.</p>

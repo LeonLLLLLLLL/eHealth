@@ -302,12 +302,12 @@ async def upload_image(
         compressed_data = compress_metadata_with_masks(metadata_with_rle_list)
 
         # Decompress to verify integrity
-        decompressed_data = decompress_metadata_with_masks(compressed_data)
-        index = 0
-        for metadata_with_rle in decompressed_data:
-            mask, metadata = decode_mask_with_metadata(metadata_with_rle, image_array.shape[:2])
-            visualize_grid_segments_opencv(metadata["grid_segments"], image_array, f"{index}.jpg")
-            index += 1
+        #decompressed_data = decompress_metadata_with_masks(compressed_data)
+        #index = 0
+        #for metadata_with_rle in decompressed_data:
+            #mask, metadata = decode_mask_with_metadata(metadata_with_rle, image_array.shape[:2])
+            #visualize_grid_segments_opencv(metadata["grid_segments"], image_array, f"{index}.jpg")
+            #index += 1
 
             # Visualize or process the mask
         #    plt.figure(figsize=(8, 8))

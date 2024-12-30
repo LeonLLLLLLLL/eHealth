@@ -10,6 +10,8 @@ function showFullImage(imageData, imageFilename) {
     const fullImageTitle = document.getElementById('full-image-title');
     const imagePreviewList = document.getElementById('image-preview-list'); // Get the item list
     const gridButton = document.getElementById('grid-button');
+    const boxButton = document.getElementById('box-button');
+    const maskButton = document.getElementById('mask-button');
 
     // Set the image source and title
     fullImage.src = `data:image/png;base64,${imageData}`;
@@ -28,6 +30,8 @@ function showFullImage(imageData, imageFilename) {
     // Adjust the grid overlay after the image is loaded
     fullImage.onload = adjustGridOverlay;
     gridButton.textContent = 'Show Grid'
+    boxButton.textContent = 'Show Tissue Boxes'
+    maskButton.textContent = 'Show Tissue Masks'
 }
 
 // Function to hide the full image view
@@ -37,6 +41,10 @@ function hideFullImage() {
     const imagePreviewList = document.getElementById('image-preview-list'); // Get the item list
     const svgOverlay = document.getElementById('grid-overlay');
     const gridButton = document.getElementById('grid-button');
+    const boxButton = document.getElementById('box-button');
+    const boxsvgOverlay = document.getElementById('box-overlay');
+    const masksvgOverlay = document.getElementById('mask-overlay');
+    const maskButton = document.getElementById('mask-button');
 
     // Hide the container and reset the image
     fullImageContainer.style.display = 'none';
@@ -45,7 +53,11 @@ function hideFullImage() {
     // Show the item list
     imagePreviewList.classList.remove('hidden');
     svgOverlay.innerHTML = '';
+    boxsvgOverlay.innerHTML = '';
+    masksvgOverlay.innerHTML = '';
     gridButton.textContent = 'Show Grid'
+    boxButton.textContent = 'Show Tissue Boxes'
+    maskButton.textContent = 'Show Tissue Masks'
 }
 
 // Function to dynamically adjust the grid overlay
@@ -53,6 +65,7 @@ function adjustGridOverlay() {
     const fullImage = document.getElementById('full-image');
     const svgOverlay = document.getElementById('grid-overlay');
     const boxsvgOverlay = document.getElementById('box-overlay');
+    const masksvgOverlay = document.getElementById('mask-overlay');
 
     const imageWidth = fullImage.clientWidth;
     const imageHeight = fullImage.clientHeight;
@@ -65,6 +78,10 @@ function adjustGridOverlay() {
     boxsvgOverlay.setAttribute('viewBox', `0 0 ${imageWidth} ${imageHeight}`);
     boxsvgOverlay.style.width = `${imageWidth}px`;
     boxsvgOverlay.style.height = `${imageHeight}px`;
+
+    masksvgOverlay.setAttribute('viewBox', `0 0 ${imageWidth} ${imageHeight}`);
+    masksvgOverlay.style.width = `${imageWidth}px`;
+    masksvgOverlay.style.height = `${imageHeight}px`;
 }
 
 // Call adjustGridOverlay whenever the window resizes
@@ -218,4 +235,94 @@ function showBoxes() {
     svgOverlay.style.display = 'block';
     boxButton.textContent = 'Hide Tissue Boxes';
 }
+
+// Function to create and show the mask overlay using raw polygon data
+function showMasks() {
+    const fullImage = document.getElementById('full-image');
+    const fullImageTitle = document.getElementById('full-image-title').textContent;
+    const maskButton = document.getElementById('mask-button'); // Button to toggle masks
+    const svgOverlay = document.getElementById('mask-overlay'); // SVG overlay for masks
+
+    if (maskButton.textContent !== "Show Tissue Masks") {
+        svgOverlay.innerHTML = '';
+        maskButton.textContent = 'Show Tissue Masks';
+        return;
+    }
+
+    // Get the hidden masks data
+    const masksElement = document.getElementById(`'${fullImageTitle}'_masks`);
+    if (!masksElement) {
+        console.error('Mask data not found for the current image.');
+        return;
+    }
+
+    const rawPolygons = masksElement.textContent.trim(); // Raw polygon string
+    const masksList = eval(rawPolygons); // Parse raw string as JavaScript array
+
+    // Clear existing SVG mask paths
+    svgOverlay.innerHTML = '';
+
+    const scaleX = svgOverlay.clientWidth / fullImage.naturalWidth;
+    const scaleY = svgOverlay.clientHeight / fullImage.naturalHeight;
+
+    // Iterate through each mask (list of polygons)
+    masksList.forEach(polygons => {
+        // Iterate through each polygon in the mask
+        polygons.forEach(points => {
+            if (!points || points.length < 4) {
+                console.error('Invalid polygon points:', points);
+                return;
+            }
+
+            // Convert points array into an SVG path string
+            let pathData = '';
+            for (let i = 0; i < points.length; i += 2) {
+                const x = points[i] * scaleX;
+                const y = points[i + 1] * scaleY;
+                pathData += i === 0 ? `M ${x},${y} ` : `L ${x},${y} `;
+            }
+            pathData += 'Z'; // Close the path
+
+            // Create an SVG path element
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            path.setAttribute("d", pathData.trim());
+            path.setAttribute("fill", "rgba(0, 0, 255, 0.3)"); // Semi-transparent blue fill
+            path.setAttribute("stroke", "blue"); // Border color
+            path.setAttribute("stroke-width", "1");
+
+            // Append the path to the SVG overlay
+            svgOverlay.appendChild(path);
+        });
+    });
+
+    // Ensure the SVG overlay is visible
+    svgOverlay.style.display = 'block';
+    maskButton.textContent = 'Hide Tissue Masks';
+}
+
+
+// JavaScript for making the draggable-buttons div draggable
+document.addEventListener('DOMContentLoaded', () => {
+    const draggable = document.getElementById('draggable-buttons');
+    let offsetX = 0, offsetY = 0, isDragging = false;
+
+    draggable.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        offsetX = e.clientX - draggable.offsetLeft;
+        offsetY = e.clientY - draggable.offsetTop;
+        draggable.style.cursor = 'grabbing'; // Indicate dragging
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+            draggable.style.left = `${e.clientX - offsetX}px`;
+            draggable.style.top = `${e.clientY - offsetY}px`;
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        isDragging = false;
+        draggable.style.cursor = 'grab'; // Reset cursor
+    });
+});
 

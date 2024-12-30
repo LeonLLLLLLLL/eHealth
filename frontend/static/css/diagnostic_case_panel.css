@@ -96,12 +96,17 @@
 }
 
 #grid-button {
-    top: 50px;
+    top: 65px;
     left: 20px;
 }
 
 #box-button{
-    top: 80px;
+    top: 133px;
+    left: 20px;
+}
+
+#mask-button{
+    top: 190px;
     left: 20px;
 }
 
@@ -130,3 +135,33 @@
     /*background-color: rgba(255, 0, 0, 0.1); /* Light red for debugging */
     /*border: 1px solid red; /* Adds a visible border */
 }
+
+#mask-overlay {
+    position: absolute;
+    z-index: 9;
+    /*background-color: rgba(255, 0, 0, 0.1); /* Light red for debugging */
+    /*border: 1px solid red; /* Adds a visible border */
+}
+
+.draggable-buttons {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 15;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background */
+    border: 2px dashed white; /* Dashed border for draggable indicator */
+    border-radius: 8px;
+    cursor: grab; /* Indicate draggable element */
+}
+
+.draggable-buttons:active {
+    cursor: grabbing; /* Change cursor while dragging */
+}
+
+
+
